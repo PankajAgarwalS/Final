@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <omp.h>
+
+#define SIZE 100000
+
+int main() {
+    int arr[SIZE];
+    for (int i = 0; i < SIZE; i++) {
+        arr[i] = rand() % 100000;
+    }
+
+    int minVal = arr[0];
+    int maxVal = arr[0];
+    long long sum = 0;
+    double average = 0.0;
+
+    double start = omp_get_wtime();
+
+    // Parallel Reduction
+    #pragma omp parallel for reduction(min:minVal) reduction(max:maxVal) reduction(+:sum)
+    for (int i = 0; i < SIZE; i++) {
+        if (arr[i] < minVal) minVal = arr[i];
+        if (arr[i] > maxVal) maxVal = arr[i];
+        sum += arr[i];
+    }
+
+    average = (double)sum / SIZE;
+
+    double end = omp_get_wtime();
+
+    // Output results
+    printf("Minimum: %d\n", minVal);
+    printf("Maximum: %d\n", maxVal);
+    printf("Sum: %lld\n", sum);
+    printf("Average: %.2f\n", average);
+    printf("Time Taken: %f seconds\n", end - start);
+
+    return 0;
+}
+
+
+//
+
+sudo apt update
+sudo apt install build-essential
+
+gcc -fopenmp reduction_operations.c -o reduction_ops
+./reduction_ops
