@@ -145,3 +145,89 @@ Original file is located at
 
 !./parallel_sort
 
+
+
+'''The provided code demonstrates the parallelization of two common sorting algorithms: **Bubble Sort** and **Merge Sort** using OpenMP (Open Multi-Processing). OpenMP is used to parallelize the execution of tasks to leverage multiple cores for faster computation. Here's a detailed explanation of the key concepts and the functionality of the code:
+
+### Key Concepts:
+
+1. **OpenMP (Open Multi-Processing)**:
+
+   * OpenMP is a widely used API for parallel programming in C, C++, and Fortran. It provides a set of compiler directives (`#pragma`) that allow developers to easily parallelize loops, sections of code, and tasks.
+   * The primary goal of OpenMP is to enable better performance by utilizing multiple CPU cores in a system. In this code, OpenMP is used to parallelize sorting algorithms like Bubble Sort and Merge Sort.
+
+2. **Bubble Sort**:
+
+   * Bubble Sort is a simple sorting algorithm where adjacent elements are compared and swapped if they are in the wrong order. The algorithm repeatedly "bubbles" the largest unsorted element to the end of the array.
+   * **Sequential Bubble Sort**: The traditional, non-parallel version of Bubble Sort iterates through the array and compares adjacent elements in a nested loop.
+   * **Parallel Bubble Sort**: In the parallelized version, the inner loop is divided between multiple threads. This is achieved by using the `#pragma omp parallel for` directive, which allows different threads to process alternate elements of the array (odd and even indexed elements) concurrently.
+
+3. **Merge Sort**:
+
+   * Merge Sort is a divide-and-conquer algorithm that recursively divides the array into two halves, sorts each half, and then merges them back together in sorted order.
+   * **Sequential Merge Sort**: In the sequential version, the array is divided recursively into two halves, and each half is sorted sequentially.
+   * **Parallel Merge Sort**: The parallelized version utilizes `#pragma omp parallel sections`, where each section handles one of the recursive calls. This allows the sorting of both halves to occur concurrently, leveraging multiple threads for efficiency.
+
+4. **Array Operations**:
+
+   * `fillArray()`: Fills an array with random numbers. This is used to generate input arrays for sorting.
+   * `copyArray()`: Copies the contents of one array to another. This ensures that each sorting algorithm operates on the same initial data, allowing for a fair comparison of performance.
+
+### Code Breakdown:
+
+#### Step 1: Array Initialization
+
+The program creates an array of size `SIZE` (10,000 elements in this case) filled with random numbers. Four copies of the original array are created to ensure that each sorting algorithm operates on the same input data.
+
+#### Step 2: Sequential Bubble Sort (`sequentialBubbleSort`)
+
+* This function implements the traditional Bubble Sort algorithm using two nested loops:
+
+  * The outer loop runs for `n-1` iterations, where `n` is the array size.
+  * The inner loop compares adjacent elements and swaps them if necessary, pushing the largest element to the end.
+* The sequential implementation does not utilize any parallelism and processes the array in a single thread.
+
+#### Step 3: Parallel Bubble Sort (`parallelBubbleSort`)
+
+* This function parallelizes the Bubble Sort algorithm using OpenMP's `#pragma omp parallel for` directive:
+
+  * The loop iterates over the array and compares adjacent elements.
+  * The `start = i % 2` ensures that two separate loops handle elements at odd and even indices, respectively. This avoids conflicts between threads that would otherwise try to swap the same elements.
+  * By dividing the work across multiple threads, the sorting process can proceed faster than in the sequential version, especially for large arrays.
+
+#### Step 4: Sequential Merge Sort (`sequentialMergeSort`)
+
+* Merge Sort divides the array into two halves, recursively sorts them, and then merges them back together.
+* The `merge()` function is used to combine two sorted halves into a single sorted array.
+* The `sequentialMergeSort()` function recursively splits the array into smaller subarrays and calls the `merge()` function on them.
+* This implementation does not utilize parallelism and sorts the array sequentially in a single thread.
+
+#### Step 5: Parallel Merge Sort (`parallelMergeSort`)
+
+* The parallel version of Merge Sort utilizes OpenMP's `#pragma omp parallel sections` to parallelize the recursive sorting of both halves:
+
+  * Each recursive call to `parallelMergeSort` is run in a separate thread.
+  * The `merge()` function is called after both sections are sorted, just like the sequential version.
+  * This parallelization allows both halves of the array to be sorted simultaneously, significantly speeding up the sorting process for large arrays.
+
+#### Step 6: Performance Measurement
+
+* The program measures the time taken by each sorting algorithm using OpenMP's `omp_get_wtime()` function, which returns the wall time (elapsed time) in seconds.
+* It then prints the time taken for each of the four sorting operations: **Sequential Bubble Sort**, **Parallel Bubble Sort**, **Sequential Merge Sort**, and **Parallel Merge Sort**.
+
+#### Step 7: Compilation and Execution
+
+* The code is compiled with the `gcc -fopenmp` flag to enable OpenMP support.
+* After compiling, the executable is run, and the time taken for each sorting algorithm is displayed.
+
+### Code Performance:
+
+1. **Sequential Bubble Sort**: This will be the slowest as it processes each pair of elements in a nested loop.
+2. **Parallel Bubble Sort**: This version will be faster than the sequential one due to parallelization. However, Bubble Sort itself is inefficient for large arrays, so the performance gain may not be as significant as with Merge Sort.
+3. **Sequential Merge Sort**: This algorithm is more efficient than Bubble Sort, with a time complexity of O(n log n). It will perform better than Bubble Sort but will still run sequentially.
+4. **Parallel Merge Sort**: This is the most efficient version, as it takes advantage of parallelism to speed up the divide-and-conquer process. For large arrays, this will likely outperform the sequential version.
+
+### Conclusion:
+
+This code demonstrates how to parallelize sorting algorithms using OpenMP. By parallelizing both Bubble Sort and Merge Sort, the program significantly improves performance for large datasets. However, due to the inherent inefficiency of Bubble Sort, the greatest performance gains are observed with Merge Sort, especially in its parallel version. OpenMP provides an easy way to parallelize algorithms, making it possible to leverage multi-core processors to achieve faster computation.
+'''
